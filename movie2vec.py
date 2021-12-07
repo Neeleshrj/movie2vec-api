@@ -85,7 +85,7 @@ def add_vecs(vectors,shape):
 data = pd.read_csv("./data/movie_reviews.csv")
 movie_vec = {data['name'][i]:sbert_model.encode(data['review'][i]) for i in range(len(data))}
 
-def get_movies(movie_desc):
+def get_movies(movie_desc,top=10):
   user_vec = sbert_model.encode(clean_sentence(movie_desc,string_out=True))
 
   scores = {key:cosine_similarity([user_vec],[value]).item() for key,value in movie_vec.items()}
@@ -96,4 +96,4 @@ def get_movies(movie_desc):
   for name,score in sorted_scores:
     l.append({"name":name,"link":data[data['name']==name]['link'],"score":score})
   
-  return l[:10]
+  return l[:top]
