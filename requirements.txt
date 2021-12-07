@@ -1,2 +1,8 @@
 fastapi
 uvicorn
+nltk
+numpy
+sentence_transformers
+scikit-learn
+pandas
+tensorflow
