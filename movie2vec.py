@@ -14,7 +14,7 @@ nltk.download('stopwords')
 
 embed_dict = {}
 
-with open('/content/glove.6B.200d.txt','r') as f:
+with open('./content/glove.6B.200d.txt','r') as f:
   for line in f:
     values = line.split()
     word = values[0]
@@ -107,7 +107,7 @@ movie_vec = {data['name'][i]:encode(data['review'][i]) for i in range(len(data))
 def get_movies(movie_desc,top=10):
   user_vec = encode(clean_sentence(movie_desc,string_out=True))
 
-  scores = {key:cosine_similarity([user_vec],[value]).item() for key,value in movie_vec.items()}
+  scores = {key:cosine_similarity(user_vec,[value]).item() for key,value in movie_vec.items()}
   sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
   l = []
