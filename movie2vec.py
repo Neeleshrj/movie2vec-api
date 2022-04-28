@@ -1,3 +1,4 @@
+
 import numpy as np
 import tensorflow as tf
 import pandas as pd
@@ -106,13 +107,16 @@ movie_vec = {data['name'][i]:encode(data['review'][i]) for i in range(len(data))
 
 def get_movies(movie_desc,top=10):
   user_vec = encode(clean_sentence(movie_desc,string_out=True))
-
-  scores = {key:cosine_similarity(user_vec,[value]).item() for key,value in movie_vec.items()}
+  #print(value.shape for key,value in movie_vec.items())
+  #for key,val in movie_vec.items():
+  #  print(val.shape)
+  #  break
+  scores = {key:cosine_similarity(user_vec,value).tolist() for key,value in movie_vec.items()}
   sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
   l = []
 
   for name,score in sorted_scores:
-    l.append({"name":name,"link":data[data['name']==name]['link'],"score":score})
+    l.append({"name":name,"link":data[data['name']==name]['link']}) #],"score":score})
   
   return l[:top]
