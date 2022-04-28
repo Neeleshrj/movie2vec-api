@@ -29,6 +29,7 @@ updated_stop_words.remove('nor')
 stop_words = updated_stop_words
 
 DIM = 128
+VECTOR_LENGTH = 200
 
 out_v = open('./data/vectors.tsv', 'r', encoding='utf-8')
 out_m = open('./data/metadata.tsv', 'r', encoding='utf-8')
@@ -94,7 +95,10 @@ def add_vecs(vectors,shape):
 def encode(sent):
   l = []
   for i in sent.split(" "):
-    l.append(np.array(embed_dict[i]))
+    try:
+      l.append(np.array(embed_dict[i]))
+    except:
+      l.append(np.array([0]*VECTOR_LENGTH))
   return np.array(l)
 
 data = pd.read_csv("./data/movie_reviews.csv")
