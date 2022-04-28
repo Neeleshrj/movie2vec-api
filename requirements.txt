@@ -5,4 +5,4 @@ numpy
 sentence_transformers
 scikit-learn
 pandas
-tensorflow
+tensorflow-cpu
