@@ -1,16 +1,26 @@
+
 import numpy as np
 import tensorflow as tf
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
-from sentence_transformers import SentenceTransformer
-sbert_model = SentenceTransformer('bert-base-nli-mean-tokens')
+# from sentence_transformers import SentenceTransformer
+# sbert_model = SentenceTransformer('bert-base-nli-mean-tokens')
 
 import nltk
 from nltk.corpus import stopwords
 
 nltk.download('punkt')
 nltk.download('stopwords')
+
+embed_dict = {}
+
+with open('./content/glove.6B.200d.txt','r') as f:
+  for line in f:
+    values = line.split()
+    word = values[0]
+    vector = np.asarray(values[1:],'float32')
+    embed_dict[word]=vector
 
 stop_words = stopwords.words('english')
 updated_stop_words = stop_words.copy()
@@ -20,6 +30,7 @@ updated_stop_words.remove('nor')
 stop_words = updated_stop_words
 
 DIM = 128
+VECTOR_LENGTH = 200
 
 out_v = open('./data/vectors.tsv', 'r', encoding='utf-8')
 out_m = open('./data/metadata.tsv', 'r', encoding='utf-8')
@@ -82,18 +93,30 @@ def add_vecs(vectors,shape):
     res = np.add(res,i)
   return res
 
+def encode(sent):
+  l = []
+  for i in sent.split(" "):
+    try:
+      l.append(np.array(embed_dict[i]))
+    except:
+      l.append(np.array([0]*VECTOR_LENGTH))
+  return np.array(l)
+
 data = pd.read_csv("./data/movie_reviews.csv")
-movie_vec = {data['name'][i]:sbert_model.encode(data['review'][i]) for i in range(len(data))}
+movie_vec = {data['name'][i]:encode(data['review'][i]) for i in range(len(data))}
 
 def get_movies(movie_desc,top=10):
-  user_vec = sbert_model.encode(clean_sentence(movie_desc,string_out=True))
-
-  scores = {key:cosine_similarity([user_vec],[value]).item() for key,value in movie_vec.items()}
+  user_vec = encode(clean_sentence(movie_desc,string_out=True))
+  #print(value.shape for key,value in movie_vec.items())
+  #for key,val in movie_vec.items():
+  #  print(val.shape)
+  #  break
+  scores = {key:cosine_similarity(user_vec,value).tolist() for key,value in movie_vec.items()}
   sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
   l = []
 
   for name,score in sorted_scores:
-    l.append({"name":name,"link":data[data['name']==name]['link'],"score":score})
+    l.append({"name":name,"link":data[data['name']==name]['link']}) #],"score":score})
   
   return l[:top]
